@@ -29,6 +29,11 @@ def copy(git_dir):
 
 
 @click.command()
+def make_global():
+    click.echo("make_global")
+
+
+@click.command()
 @click.argument("id-file", required=False)
 def use(id_file):
     click.echo(f"id_file is {id_file}")
