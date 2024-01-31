@@ -43,6 +43,7 @@ def use(id_file):
 
 program.add_command(show)
 program.add_command(copy)
+program.add_command(make_global)
 program.add_command(use)
 
 
