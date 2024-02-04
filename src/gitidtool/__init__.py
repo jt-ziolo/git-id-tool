@@ -6,7 +6,7 @@ import click
 from gitidtool.click_echo_wrapper import ClickEchoWrapper
 from gitidtool.git_data import GitDataEntry, GitDataEntryFactory, GitDataReader
 from gitidtool.gpg_data import GpgDataEntryFactory, GpgDataReader
-from gitidtool.show_cmd_result import RepoResultData, RepoResultReporter
+from gitidtool.show_cmd_result import ShowCmdResultData, ShowCmdResultReporter
 from gitidtool.ssh_data import SshDataEntryFactory, SshDataReader
 
 # Click functions (API)
@@ -48,10 +48,10 @@ def show(global_, recursive):
     gpg_config = _get_gpg_config()
     click.echo("Reading ssh configuration...")
     ssh_config = _get_ssh_config()
-    results = [RepoResultData(entry, gpg_config, ssh_config) for entry in git_config]
+    results = [ShowCmdResultData(entry, gpg_config, ssh_config) for entry in git_config]
 
     click_echo_wrapper = ClickEchoWrapper()
-    reporter = RepoResultReporter()
+    reporter = ShowCmdResultReporter()
     for result in results:
         click_echo_wrapper.echo_all()  # blank line
         reporter.report_on_result(result, click_echo_wrapper)

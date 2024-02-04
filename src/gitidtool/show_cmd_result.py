@@ -6,7 +6,7 @@ from gitidtool.gpg_data import GpgDataEntry
 from gitidtool.ssh_data import SshDataEntry
 
 
-class RepoResultData:
+class ShowCmdResultData:
     def __init__(
         self,
         repo_config_entry: GitDataEntry,
@@ -58,9 +58,9 @@ class RepoResultData:
         return self.ssh_map[remote]
 
 
-class RepoResultReporter:
+class ShowCmdResultReporter:
     def report_on_result(
-        self, git_result: RepoResultData, click_echo_wrapper: ClickEchoWrapper
+        self, git_result: ShowCmdResultData, click_echo_wrapper: ClickEchoWrapper
     ):
         worst_status = LineStatus.GOOD
 

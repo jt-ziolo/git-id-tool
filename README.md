@@ -2,7 +2,8 @@
 
 ## Todos
 
-- [ ] show
+- [X] show
+- [ ] update show documentation
 - [ ] copy
 - [ ] make-global
 - [ ] use
@@ -15,7 +16,7 @@ I recommend that you setup a git alias, like this: `id = "!git-id-tool"`
 
 - Shows the current git configuration for the `[user]` section
 - Lists each git remote and which SSH host is currently set to be used for that remote based on that remote's url and the SSH configuration
-- Will warn you if no gpg signing key has been set, and then provide you with instructions for how to set it using `git config --local user.signingkey {key}` or `git id copy {git-dir}`
+- Will warn you if no gpg signing key has been set
 
 #### GPG signing key information
 
