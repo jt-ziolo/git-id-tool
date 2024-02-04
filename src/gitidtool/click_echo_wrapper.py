@@ -1,9 +1,14 @@
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 
 import click
 
-from gitidtool.click_echo_color import ClickEchoColor
+
+class ClickEchoColor(StrEnum):
+    DEFAULT = "white"
+    MATCH = "green"
+    WARNING = "yellow"
+    MISMATCH = "red"
 
 
 class StatusSymbol(Enum):
