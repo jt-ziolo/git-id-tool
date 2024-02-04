@@ -1,16 +1,13 @@
-import click
 import os
 from pathlib import Path
+
+import click
+
 from gitidtool.click_echo_wrapper import ClickEchoWrapper
-from gitidtool.git_result import GitResultData
-from gitidtool.git_result_reporter import GitResultReporter
-from gitidtool.gpg_key_entry_factory import GpgKeyEntryFactory
-from gitidtool.gpg_key_entry_reader import GpgKeyEntryReader
-from gitidtool.repo_config import RepoConfig
-from gitidtool.repo_config_factory import RepoConfigFactory
-from gitidtool.repo_config_reader import RepoConfigReader
-from gitidtool.ssh_config_entry_factory import SshConfigEntryFactory
-from gitidtool.ssh_config_reader import SshConfigReader
+from gitidtool.git_data import GitDataEntry, GitDataEntryFactory, GitDataReader
+from gitidtool.gpg_data import GpgDataEntryFactory, GpgDataReader
+from gitidtool.show_cmd_result import RepoResultData, RepoResultReporter
+from gitidtool.ssh_data import SshDataEntryFactory, SshDataReader
 
 # Click functions (API)
 
@@ -43,7 +40,7 @@ def program():
 def show(global_, recursive):
     click.echo("Reading git repo configuration files...")
     try:
-        git_config: list[RepoConfig] = _get_git_config(global_, recursive)
+        git_config: list[GitDataEntry] = _get_git_config(global_, recursive)
     except RuntimeError as e:
         click.echo(e)
         return
@@ -51,10 +48,10 @@ def show(global_, recursive):
     gpg_config = _get_gpg_config()
     click.echo("Reading ssh configuration...")
     ssh_config = _get_ssh_config()
-    results = [GitResultData(entry, gpg_config, ssh_config) for entry in git_config]
+    results = [RepoResultData(entry, gpg_config, ssh_config) for entry in git_config]
 
     click_echo_wrapper = ClickEchoWrapper()
-    reporter = GitResultReporter()
+    reporter = RepoResultReporter()
     for result in results:
         click_echo_wrapper.echo_all()  # blank line
         reporter.report_on_result(result, click_echo_wrapper)
@@ -95,20 +92,20 @@ def _print_id_files():
 
 
 def _get_ssh_config():
-    factory = SshConfigEntryFactory()
-    reader = SshConfigReader(factory)
+    factory = SshDataEntryFactory()
+    reader = SshDataReader(factory)
     return reader.get_config_entries_from_file()
 
 
 def _get_gpg_config():
-    factory = GpgKeyEntryFactory()
-    reader = GpgKeyEntryReader(factory)
+    factory = GpgDataEntryFactory()
+    reader = GpgDataReader(factory)
     return reader.get_gpg_config()
 
 
 def _get_git_config(include_global: bool, do_recursive_check: bool):
-    factory = RepoConfigFactory()
-    reader = RepoConfigReader(factory)
+    factory = GitDataEntryFactory()
+    reader = GitDataReader(factory)
     config_paths = _get_git_config_paths(do_recursive_check)
     if include_global:
         config_paths.add(Path("~/.gitconfig").expanduser())

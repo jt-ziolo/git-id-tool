@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from enum import Enum
+
 import click
+
 from gitidtool.click_echo_color import ClickEchoColor
 
 

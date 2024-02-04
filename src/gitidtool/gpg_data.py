@@ -1,16 +1,31 @@
 import subprocess
-import regex
 from dataclasses import dataclass
-from gitidtool.gpg_key_entry import GpgKeyEntry
-from gitidtool.gpg_key_entry_factory import GpgKeyEntryFactory
+
+import regex
+
+
+@dataclass(frozen=True)
+class GpgDataEntry:
+    public_key: str
+    name: str
+    email: str
+
+
+class GpgDataEntryFactory:
+    public_key: str
+    name: str
+    email: str
+
+    def create(self):
+        return GpgDataEntry(self.public_key, self.name, self.email)
 
 
 @dataclass
-class GpgKeyEntryReader:
-    factory: GpgKeyEntryFactory
+class GpgDataReader:
+    factory: GpgDataEntryFactory
 
     def get_gpg_config(self):
-        config_entries = list[GpgKeyEntry]()
+        config_entries = list[GpgDataEntry]()
         output = self._get_cmd_output()
         for line in output.splitlines():
             if line.startswith("pub"):

@@ -1,18 +1,33 @@
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+
 import regex
-from gitidtool.ssh_config_entry import SshConfigEntry
-from gitidtool.ssh_config_entry_factory import SshConfigEntryFactory
+
+
+@dataclass(frozen=True)
+class SshDataEntry:
+    hostname: str
+    email: str
+    identity_file_path: str
+
+
+class SshDataEntryFactory:
+    email: str
+    hostname: str
+    identity_file_path: str
+
+    def create(self):
+        return SshDataEntry(self.hostname, self.email, self.identity_file_path)
 
 
 @dataclass
-class SshConfigReader:
-    factory: SshConfigEntryFactory
+class SshDataReader:
+    factory: SshDataEntryFactory
 
     def get_config_entries_from_file(
         self, path: Path = Path.home().joinpath(".ssh", "config")
     ):
-        config_entries: list[SshConfigEntry] = []
+        config_entries: list[SshDataEntry] = []
         with open(path, "r") as file:
             for line in file:
                 # Remove whitespace
