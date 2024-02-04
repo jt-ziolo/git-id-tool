@@ -1,6 +1,6 @@
 from functools import cached_property
 
-from gitidtool.click_echo_wrapper import ClickEchoWrapper, StatusSymbol
+from gitidtool.click_echo_wrapper import ClickEchoWrapper, LineStatus
 from gitidtool.git_data import GitDataEntry, GitRemoteDataEntry
 from gitidtool.gpg_data import GpgDataEntry
 from gitidtool.ssh_data import SshDataEntry
@@ -62,7 +62,7 @@ class RepoResultReporter:
     def report_on_result(
         self, git_result: RepoResultData, click_echo_wrapper: ClickEchoWrapper
     ):
-        worst_status = StatusSymbol.CHECK
+        worst_status = LineStatus.GOOD
 
         indentation_level = 0
         indentation_level += 1
@@ -74,9 +74,9 @@ class RepoResultReporter:
             click_echo_wrapper.add_status_line(
                 "Missing git user name",
                 indentation_level + 1,
-                prependedSymbol=StatusSymbol.QUESTION_MARK,
+                prependedSymbol=LineStatus.WARNING,
             )
-            worst_status = StatusSymbol.QUESTION_MARK
+            worst_status = LineStatus.WARNING
         click_echo_wrapper.add_line(
             f'git: user.email = "{git_result.git_user_email}"',
             indentation_level,
@@ -85,9 +85,9 @@ class RepoResultReporter:
             click_echo_wrapper.add_status_line(
                 "Missing git user email",
                 indentation_level + 1,
-                prependedSymbol=StatusSymbol.QUESTION_MARK,
+                prependedSymbol=LineStatus.WARNING,
             )
-            worst_status = StatusSymbol.QUESTION_MARK
+            worst_status = LineStatus.WARNING
         click_echo_wrapper.add_line(
             f'git: user.signingkey = "{git_result.git_user_signing_key}"',
             indentation_level,
@@ -97,9 +97,9 @@ class RepoResultReporter:
             click_echo_wrapper.add_status_line(
                 "No signing key set for this repo",
                 indentation_level,
-                prependedSymbol=StatusSymbol.QUESTION_MARK,
+                prependedSymbol=LineStatus.WARNING,
             )
-            worst_status = StatusSymbol.QUESTION_MARK
+            worst_status = LineStatus.WARNING
         else:
             worst_status = self.add_line_check_mismatch(
                 worst_status,
@@ -124,11 +124,11 @@ class RepoResultReporter:
             click_echo_wrapper.add_status_line(
                 f"No remotes configured for this repo",
                 indentation_level,
-                prependedSymbol=StatusSymbol.QUESTION_MARK,
+                prependedSymbol=LineStatus.WARNING,
             )
             worst_status = (
-                StatusSymbol.QUESTION_MARK
-                if worst_status == StatusSymbol.CHECK
+                LineStatus.WARNING
+                if worst_status == LineStatus.GOOD
                 else worst_status
             )
         for remote in git_result.remotes:
@@ -145,9 +145,9 @@ class RepoResultReporter:
                 click_echo_wrapper.add_status_line(
                     f"No known ssh host with this hostname",
                     indentation_level + 1,
-                    prependedSymbol=StatusSymbol.QUESTION_MARK,
+                    prependedSymbol=LineStatus.WARNING,
                 )
-                worst_status = StatusSymbol.QUESTION_MARK
+                worst_status = LineStatus.WARNING
             else:
                 indentation_level += 1
                 click_echo_wrapper.add_line(
@@ -194,13 +194,13 @@ class RepoResultReporter:
             click_echo_wrapper.add_status_line(
                 f"Matches {desc_checking_against}",
                 indentation_level + 1,
-                prependedSymbol=StatusSymbol.CHECK,
+                prependedSymbol=LineStatus.GOOD,
             )
             return worst_status  # no worse than it was entering this call
         if value != value_checking_against:
             click_echo_wrapper.add_status_line(
                 f"Does not match {desc_checking_against}",
                 indentation_level + 1,
-                prependedSymbol=StatusSymbol.CROSS_OUT,
+                prependedSymbol=LineStatus.ERROR,
             )
-            return StatusSymbol.CROSS_OUT
+            return LineStatus.ERROR

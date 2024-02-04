@@ -11,11 +11,11 @@ class ClickEchoColor(StrEnum):
     MISMATCH = "red"
 
 
-class StatusSymbol(Enum):
-    NONE = (0,)
-    CHECK = (1,)
-    QUESTION_MARK = (2,)
-    CROSS_OUT = (3,)
+class LineStatus(Enum):
+    DEFAULT = (0,)
+    GOOD = (1,)
+    WARNING = (2,)
+    ERROR = (3,)
 
 
 @dataclass
@@ -28,7 +28,7 @@ class ClickEchoWrapper:
         indentation_level=0,
         color: ClickEchoColor = ClickEchoColor.DEFAULT,
         isHeading=False,
-        prependedSymbol: StatusSymbol = StatusSymbol.NONE,
+        prependedSymbol: LineStatus = LineStatus.DEFAULT,
         insert_at_position=-1,
     ):
         indentation = ""
@@ -36,11 +36,11 @@ class ClickEchoWrapper:
             indentation += "    "
         status_symbol = ""
         match prependedSymbol:
-            case StatusSymbol.CHECK:
+            case LineStatus.GOOD:
                 status_symbol = "✅ "
-            case StatusSymbol.QUESTION_MARK:
+            case LineStatus.WARNING:
                 status_symbol = "❔ "
-            case StatusSymbol.CROSS_OUT:
+            case LineStatus.ERROR:
                 status_symbol = "❌ "
 
         if insert_at_position < 0:
@@ -63,7 +63,7 @@ class ClickEchoWrapper:
         text,
         indentation_level=0,
         isHeading=False,
-        prependedSymbol: StatusSymbol = StatusSymbol.NONE,
+        prependedSymbol: LineStatus = LineStatus.DEFAULT,
         insert_at_position=-1,
     ):
         indentation = ""
@@ -71,13 +71,13 @@ class ClickEchoWrapper:
             indentation += "    "
         status_symbol = ""
         match prependedSymbol:
-            case StatusSymbol.CHECK:
+            case LineStatus.GOOD:
                 color = ClickEchoColor.MATCH
                 status_symbol = "✅ "
-            case StatusSymbol.QUESTION_MARK:
+            case LineStatus.WARNING:
                 color = ClickEchoColor.WARNING
                 status_symbol = "❔ "
-            case StatusSymbol.CROSS_OUT:
+            case LineStatus.ERROR:
                 color = ClickEchoColor.MISMATCH
                 status_symbol = "❌ "
 
