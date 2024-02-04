@@ -27,8 +27,9 @@ class SshConfigReader:
                     case "Host":
                         self.factory.hostname = value
                     case "IdentityFile":
+                        self.factory.identity_file_path = value
                         self.factory.email = self.get_email_from_identity_file(value)
-                        config_entries.append(self.factory.create_entry())
+                        config_entries.append(self.factory.create())
         return config_entries
 
     def get_email_from_identity_file(self, identity_file: Path):

@@ -28,7 +28,7 @@ class RepoConfigReader:
                 ):
                     is_in_remote_section = True
                     is_in_user_section = False
-                    remote_name = self.get_remote_name_from_line(line)
+                    remote_name = self._get_remote_name_from_line(line)
                     continue
 
                 if is_in_user_section:
@@ -55,7 +55,7 @@ class RepoConfigReader:
                         )
         return self.factory.create()
 
-    def get_remote_name_from_line(self, line: str):
+    def _get_remote_name_from_line(self, line: str):
         remote_name = regex.search(r'"[^"]*"', line).group(0)
         remote_name = remote_name.removeprefix('"').removesuffix('"')
         return remote_name

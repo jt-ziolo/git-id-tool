@@ -1,9 +1,8 @@
-from dataclasses import dataclass
+from enum import StrEnum
 
 
-@dataclass(frozen=True)
-class ClickEchoColor:
-    match = "green"
-    potential_mismatch = "yellow"
-    mismatch = "red"
-    default = "white"
+class ClickEchoColor(StrEnum):
+    DEFAULT = "white"
+    MATCH = "green"
+    WARNING = "yellow"
+    MISMATCH = "red"

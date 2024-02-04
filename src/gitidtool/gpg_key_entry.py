@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class SshConfigEntry:
-    hostname: str
+class GpgKeyEntry:
+    public_key: str
+    name: str
     email: str
-    identity_file_path: str
