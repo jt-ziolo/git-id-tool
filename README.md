@@ -1,47 +1,54 @@
 # git-id-tool
 
-## Todos
+Work in progress.
 
-- [X] show
-- [ ] update show documentation
-- [ ] copy
-- [ ] make-global
-- [ ] use
+Consider setting up a git alias for easier cli access, like this:
+
+```txt
+  [alias]
+    id = "!git-id-tool"
+```
 
 ## Commands
 
-I recommend that you setup a git alias, like this: `id = "!git-id-tool"`
-
 ### show
 
-- Shows the current git configuration for the `[user]` section
-- Lists each git remote and which SSH host is currently set to be used for that remote based on that remote's url and the SSH configuration
-- Will warn you if no gpg signing key has been set
+### write {git-dir}
 
-#### GPG signing key information
+- Will write the minimum set of git, gpg, and ssh identifying information in json format for the repo located at `{git-dir}` (or at the given path) to stdout
+- The intent is that you can save the output to a json file and then edit it prior to passing it as an argument to `git-id-tool use`
 
-- If passed the option `--check-gpg`, the output of `gpg --list-keys --keyid-format=long` will be used to determine the name and email attached to the repo's gpg signing key. Mismatches between the information attached to the signing key and the git repo configuration will be highlighted in the output.
+Output format:
 
-### copy {git-dir}
+```json
+{
+  "name": "John Doe",
+  "email": "johndoe@email.com",
+  "signingkey": "ABCDEFGHIJKLMNOP",
+  "remotes": {
+    "example_remote_A": "example-hostname.top-level-domain",
+    "example_remote_B": "github.com",
+    "example_remote_C": "bitbucket.org",
+  }
+}
+```
 
-- If running this command would not change the current git repo's configuration, then the program exits and nothing is changed
-- Will copy the `[user]` section of the **target** repo's git configuration and overwrite the **current** git repo's `[user]` section with it
-- Your old local git configuration will be backed up to `.git/config.backup.{timestamp}`
+### use {git-dir} {json-input} -r/--recursive
 
-### make-global
+Interactively sets your ssh, gpg, and local git configuration to match json input provided in the format produced by `write`.
 
-- If running this command would not change your global git configuration, then the program exits and nothing is changed
-- Will copy the `[user]` section of the **current** repo's git configuration and overwrite your global `[user]` section with it
-- Your old global git configuration will be backed up to `.gitconfig.backup.{timestamp}`
-
-### use {identity-file}
-
-- Moves any `~/.ssh/config` entries matching the identity file pattern (regex) to the top of the file, prior to any other entries
-- Then, it will set up the current repo's git configuration (`.git/config`) to match:
-  - user.email = {email from SSH configuration entry}
-  - user.name = {name from SSH configuration entry}
-- Then, it will run the `show` command
-
-#### When no arguments are given, or an invalid argument is given
-
-- Lists the allowed values for identity files based on the contents of your user-level `.ssh` directory
+- Based on the provided json input or .json file path:
+  - Applies configuration changes to the git repo at `{git-dir}` so that the user name, email, and signing key (if valid) match the json input. If -r/--recursive is set, then applies these changes to nested repos as well.
+  - Checks that each remote's hostname will result in the use of a valid ssh identity file (i.e. that the identity file's email will match the git repo's user email). If not, the tool will prompt you with the following options for each invalid remote (when valid):
+    - Sort `~/.ssh/config` entries matching the hostname, reordering them so that the entries which are valid will appear first among entries with that same hostname when reading the ssh config file from top to bottom
+    - Edit an existing public key file for a `~/.ssh/config` entry which matches the hostname, changing the email in the file to match the git repo's user email, then sort the config entries like done for the previous option.
+    - Generate a new ssh key pair for the hostname, where the email will be pre-filled to match the git repo's user name. The key will be added to the ssh config file at the top.
+    - Disable the invalid remote by deleting its URL, while keeping all other remote settings the same
+    - Remove (delete) the invalid remote
+    - Quit, also cancelling any changes this command would have made
+  - Checks that the provided signing key matches an existing gpg public key whose uid's name and email match the git repo's user name and email. If multiple keys match, the tool will exit and print an error. If the provided signing key does not match any existing gpg public key, the tool will prompt you with the following options (when valid):
+    - Change the repo signing key to match an existing gpg public key whose uid's name and email match the git repo's user name and email. An option will appear in the prompt for each valid choice. Choosing this option will also update the json file to match your choice, if a file path was passed to this command. If not, the command will write the modified json input to stdout.
+    - Edit the gpg public key associated with the git repo's signing key, adding a new uid to it which matches your git repo's user name and email while deleting the old uid.
+    - Generate a new gpg key pair, where the uid information will be pre-filled to match the git repo's user name and email. Choosing this option will also update the json file to replace the git repo's signingkey with the public key, if a file path was passed to this command. If not, the command will write the modified json input to stdout.
+    - Quit, also cancelling any changes this command would have made
+- If the command does not finish running in full, no changes will be made
