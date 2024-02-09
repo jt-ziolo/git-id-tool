@@ -41,7 +41,7 @@ class GpgDataReader:
 
     def _get_cmd_output(self):
         output = subprocess.run(
-            ["gpg", "--list-keys", "--keyid-format=long"],
+            ["gpg", "--list-secret-keys", "--keyid-format=long"],
             capture_output=True,
             check=True,
         )
