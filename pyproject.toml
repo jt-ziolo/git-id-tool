@@ -5,10 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "git-id-tool"
 version = "0.0.1"
+description = "wip"
 dependencies = ["click", "regex", 'importlib-metadata; python_version<"3.10"']
+authors = ["JT Ziolo <ziolojt@gmail.com>"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["src.tests*"]
 
 [project.scripts]
 git-id-tool = "gitidtool:program"
