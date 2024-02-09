@@ -127,9 +127,7 @@ class ShowCmdResultReporter:
                 prependedSymbol=LineStatus.WARNING,
             )
             worst_status = (
-                LineStatus.WARNING
-                if worst_status == LineStatus.GOOD
-                else worst_status
+                LineStatus.WARNING if worst_status == LineStatus.GOOD else worst_status
             )
         for remote in git_result.remotes:
             click_echo_wrapper.add_line(
