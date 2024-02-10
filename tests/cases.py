@@ -72,10 +72,10 @@ class GitDataEntryGenerator:
             else generate_signing_key_faker(faker)
         )
         remotes = self.remotes if self.remotes else []
-        if remotes is []:
-            # Generate 0 to 3 with the hostname
+        if len(remotes) == 0:
+            # Generate 1 to 3 with the hostname
             generator = GitRemoteDataEntryGenerator(hostname=self.hostname)
-            for _ in range(random.randrange(0, 3)):
+            for _ in range(random.randrange(1, 3)):
                 remotes.append(generator.generate(faker))
         return GitDataEntry(
             f"{repo_name}/.git/config", user_name, email, signing_key, remotes
