@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 import json
+import logging
 from pathlib import Path
 from typing import Any
+from gitidtool.click_echo_wrapper import ClickEchoWrapper
 from gitidtool.git_data import GitDataEntry
 
 
@@ -38,8 +40,9 @@ class ToolConfigEntryFactory:
 
 
 class ToolConfigContextManager:
-    def __init__(self):
+    def __init__(self, logger: logging.Logger = None):
         self._entries: set[ToolConfigEntry] = set()
+        self._logger = logger
 
     def __enter__(self):
         return self._entries
@@ -73,17 +76,20 @@ def json_str_to_config(json_str: str):
 
 
 class ToolConfigJsonContextManager(ToolConfigContextManager):
-    def __init__(self):
-        super().__init__()
-
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        # print the json representation to the command line
-        print(config_to_json_str(self._entries))
+        msg = config_to_json_str(self._entries)
+        # echo the json representation to the command line
+        click_echo_wrapper = ClickEchoWrapper()
+        click_echo_wrapper.add_line(msg)
+        click_echo_wrapper.echo_all()
+
+        if self._logger:
+            self._logger.log(level=logging.DEBUG, msg=msg)
 
 
 class ToolConfigJsonFileContextManager(ToolConfigContextManager):
-    def __init__(self, path):
-        super().__init__()
+    def __init__(self, path, logger: logging.Logger = None):
+        super().__init__(logger)
         self._path = path
 
     def _read_to_memory_from_file(self):
