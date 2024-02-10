@@ -60,27 +60,42 @@ def show(global_, recursive):
 
 
 @click.command()
-@click.argument("git-dir", type=click.Path(exists=True))
-def copy(git_dir):
-    click.echo(f"git_dir is {git_dir}")
+@click.option(
+    "-d",
+    "--directory",
+    type=click.Path(exists=True),
+    default=".",
+    show_default=True,
+    help="The git directory to reference",
+)
+def write(directory):
+    pass
 
 
 @click.command()
-def make_global():
-    click.echo("make_global")
-
-
-@click.command()
-@click.argument("id-file", required=False)
-def use(id_file):
-    click.echo(f"id_file is {id_file}")
-    if id_file is None:
-        _print_id_files()
+@click.option(
+    "-d",
+    "--directory",
+    type=click.Path(exists=True),
+    default=".",
+    show_default=True,
+    help="The git directory to apply the configuration to",
+)
+@click.option(
+    "-r",
+    "--recursive",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Whether to recursively report on all git repos including those located in subdirectories",
+)
+@click.argument("json-input-or-path")
+def use(directory, recursive, json_input_or_path):
+    pass
 
 
 program.add_command(show)
-program.add_command(copy)
-program.add_command(make_global)
+program.add_command(write)
 program.add_command(use)
 
 
