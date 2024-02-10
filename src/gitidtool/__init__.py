@@ -68,11 +68,10 @@ def show(global_, recursive):
     help="Whether to suppress non-json output",
 )
 def write(directory, suppress_status_output):
-    git_config, gpg_config, ssh_config = _read_config(
+    git_config, _, _ = _read_config(
         False, False, directory, suppress_status_output
     )
 
-    click_echo_wrapper = ClickEchoWrapper()
     context_manager = ToolConfigJsonContextManager()
     factory = ToolConfigEntryFactory()
     with context_manager as config:
