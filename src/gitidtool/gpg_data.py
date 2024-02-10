@@ -11,10 +11,11 @@ class GpgDataEntry:
     email: str
 
 
+@dataclass
 class GpgDataEntryFactory:
-    public_key: str
-    name: str
-    email: str
+    public_key: str = ""
+    name: str = ""
+    email: str = ""
 
     def create(self):
         return GpgDataEntry(self.public_key, self.name, self.email)
@@ -28,7 +29,7 @@ class GpgDataReader:
         config_entries = list[GpgDataEntry]()
         output = self._get_cmd_output()
         for line in output.splitlines():
-            if line.startswith("pub"):
+            if line.startswith("sec"):
                 self.factory.public_key = self._get_signing_key_from_line(line)
                 continue
             if line.startswith("uid"):
