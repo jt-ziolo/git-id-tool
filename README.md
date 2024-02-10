@@ -16,7 +16,7 @@ Consider setting up a git alias for easier cli access, like this:
 ### write {git-dir}
 
 - Will write the minimum set of git, gpg, and ssh identifying information in json format for the repo located at `{git-dir}` (or at the given path) to stdout
-- The intent is that you can save the output to a json file and then edit it prior to passing it as an argument to `git-id-tool use`
+- The intent is that you can save the output to a json file (e.g., for bash, using `git-id-tool write >> git-id.json`) and then edit it prior to passing it as an argument to `git-id-tool use`
 
 Output format:
 

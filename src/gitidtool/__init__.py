@@ -8,6 +8,7 @@ from gitidtool.git_data import GitDataEntry, GitDataEntryFactory, GitDataReader
 from gitidtool.gpg_data import GpgDataEntryFactory, GpgDataReader
 from gitidtool.show_cmd_result import ShowCmdResultData, ShowCmdResultReporter
 from gitidtool.ssh_data import SshDataEntryFactory, SshDataReader
+from gitidtool.tool_config import ToolConfigEntryFactory, ToolConfigJsonContextManager
 
 # Click functions (API)
 
@@ -38,16 +39,7 @@ def program():
     help="Whether to recursively report on all git repos including those located in subdirectories",
 )
 def show(global_, recursive):
-    click.echo("Reading git repo configuration files...")
-    try:
-        git_config: list[GitDataEntry] = _get_git_config(global_, recursive)
-    except RuntimeError as e:
-        click.echo(e)
-        return
-    click.echo("Reading gpg configuration...")
-    gpg_config = _get_gpg_config()
-    click.echo("Reading ssh configuration...")
-    ssh_config = _get_ssh_config()
+    git_config, gpg_config, ssh_config = _read_config(global_, recursive, ".")
     results = [ShowCmdResultData(entry, gpg_config, ssh_config) for entry in git_config]
 
     click_echo_wrapper = ClickEchoWrapper()
@@ -68,8 +60,24 @@ def show(global_, recursive):
     show_default=True,
     help="The git directory to reference",
 )
-def write(directory):
-    pass
+@click.option(
+    "--suppress-status-output",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help="Whether to suppress non-json output",
+)
+def write(directory, suppress_status_output):
+    git_config, gpg_config, ssh_config = _read_config(
+        False, False, directory, suppress_status_output
+    )
+
+    click_echo_wrapper = ClickEchoWrapper()
+    context_manager = ToolConfigJsonContextManager()
+    factory = ToolConfigEntryFactory()
+    with context_manager as config:
+        for entry in git_config:
+            config.add(factory.create_from_git_data_entry(entry))
 
 
 @click.command()
@@ -118,10 +126,10 @@ def _get_gpg_config():
     return reader.get_gpg_config()
 
 
-def _get_git_config(include_global: bool, do_recursive_check: bool):
+def _get_git_config(include_global: bool, do_recursive_check: bool, relative_path: str):
     factory = GitDataEntryFactory()
     reader = GitDataReader(factory)
-    config_paths = _get_git_config_paths(do_recursive_check)
+    config_paths = _get_git_config_paths(do_recursive_check, relative_path)
     if include_global:
         config_paths.add(Path("~/.gitconfig").expanduser())
     if len(config_paths) == 0:
@@ -134,9 +142,11 @@ def _get_git_config(include_global: bool, do_recursive_check: bool):
     return result
 
 
-def _get_git_config_paths(do_recursive_check: bool):
+def _get_git_config_paths(do_recursive_check: bool, relative_path: str):
     config_paths = set[Path]()
-    current_git_repo_candidate = os.path.join(os.getcwd(), ".git", "config")
+    current_git_repo_candidate = os.path.join(
+        os.getcwd(), relative_path, ".git", "config"
+    )
     if Path(current_git_repo_candidate).exists():
         config_paths.add(Path(current_git_repo_candidate))
     if do_recursive_check:
@@ -146,3 +156,27 @@ def _get_git_config_paths(do_recursive_check: bool):
                     os_path = os.path.join(root, directory, "config")
                     config_paths.add(Path(os_path).resolve())
     return config_paths
+
+
+def _read_config(
+    include_global: bool,
+    do_recursive_check: bool,
+    relative_path: str,
+    suppress_status_output: bool = False,
+):
+    if not suppress_status_output:
+        click.echo("Reading git repo configuration files...")
+    try:
+        git_config: list[GitDataEntry] = _get_git_config(
+            include_global, do_recursive_check, relative_path
+        )
+    except RuntimeError as e:
+        click.echo(e)
+        return
+    if not suppress_status_output:
+        click.echo("Reading gpg configuration...")
+    gpg_config = _get_gpg_config()
+    if not suppress_status_output:
+        click.echo("Reading ssh configuration...")
+    ssh_config = _get_ssh_config()
+    return git_config, gpg_config, ssh_config
