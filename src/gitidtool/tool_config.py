@@ -76,12 +76,16 @@ def json_str_to_config(json_str: str):
 
 
 class ToolConfigJsonContextManager(ToolConfigContextManager):
+    def __init__(self, logger: logging.Logger = None):
+        super().__init__(logger)
+        self._click_echo_wrapper = ClickEchoWrapper()
+
     def __exit__(self, exc_type, exc_value, exc_traceback):
         msg = config_to_json_str(self._entries)
         # echo the json representation to the command line
-        click_echo_wrapper = ClickEchoWrapper()
-        click_echo_wrapper.add_line(msg)
-        click_echo_wrapper.echo_all()
+        self._click_echo_wrapper.clear()
+        self._click_echo_wrapper.add_line(msg)
+        self._click_echo_wrapper.echo_all()
 
         if self._logger:
             self._logger.log(level=logging.DEBUG, msg=msg)
