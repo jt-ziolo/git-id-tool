@@ -153,7 +153,7 @@ class TestJsonContextManager(unittest.TestCase):
         # can't add second config example case due to click echo length limits
 
 
-class TestExampleWithMocking(unittest.TestCase):
+class TestJsonFileContextManager(unittest.TestCase):
     def setUp(self):
         fake = Faker()
         fake.seed_instance("seed2")
