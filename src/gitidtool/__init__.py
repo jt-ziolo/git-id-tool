@@ -1,4 +1,5 @@
 import click
+import logging
 
 from gitidtool.click_echo_wrapper import ClickEchoWrapper
 from gitidtool.file_system import _read_config
@@ -65,7 +66,7 @@ def show(global_, recursive):
 def write(directory, suppress_status_output):
     git_config, _, _ = _read_config(False, False, directory, suppress_status_output)
 
-    context_manager = ToolConfigJsonContextManager()
+    context_manager = ToolConfigJsonContextManager(logging.root)
     factory = ToolConfigEntryFactory()
     with context_manager as config:
         for entry in git_config:
