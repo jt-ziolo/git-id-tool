@@ -71,10 +71,10 @@ class ShowCmdResultReporter:
             indentation_level,
         )
         if git_result.git_user_name == "":
-            click_echo_wrapper.add_status_line(
+            click_echo_wrapper.add_line(
                 "Missing git user name",
                 indentation_level + 1,
-                prependedSymbol=LineStatus.WARNING,
+                status=LineStatus.WARNING,
             )
             worst_status = LineStatus.WARNING
         click_echo_wrapper.add_line(
@@ -82,10 +82,10 @@ class ShowCmdResultReporter:
             indentation_level,
         )
         if git_result.git_user_name == "":
-            click_echo_wrapper.add_status_line(
+            click_echo_wrapper.add_line(
                 "Missing git user email",
                 indentation_level + 1,
-                prependedSymbol=LineStatus.WARNING,
+                status=LineStatus.WARNING,
             )
             worst_status = LineStatus.WARNING
         click_echo_wrapper.add_line(
@@ -94,10 +94,10 @@ class ShowCmdResultReporter:
         )
         indentation_level += 1
         if git_result.git_user_signing_key == "":
-            click_echo_wrapper.add_status_line(
+            click_echo_wrapper.add_line(
                 "No signing key set for this repo",
                 indentation_level,
-                prependedSymbol=LineStatus.WARNING,
+                status=LineStatus.WARNING,
             )
             worst_status = LineStatus.WARNING
         else:
@@ -121,10 +121,10 @@ class ShowCmdResultReporter:
             )
         indentation_level -= 1
         if len(git_result.remotes) == 0:
-            click_echo_wrapper.add_status_line(
-                f"No remotes configured for this repo",
+            click_echo_wrapper.add_line(
+                "No remotes configured for this repo",
                 indentation_level,
-                prependedSymbol=LineStatus.WARNING,
+                status=LineStatus.WARNING,
             )
             worst_status = (
                 LineStatus.WARNING if worst_status == LineStatus.GOOD else worst_status
@@ -134,16 +134,12 @@ class ShowCmdResultReporter:
                 f'git: [remote "{remote.remote_name}"].url = "{remote.url}"',
                 indentation_level,
             )
-            # click_echo_wrapper.add_line(
-            #     f'=> hostname = "{remote.hostname}"',
-            #     indentation_level,
-            # )
             ssh_entry = git_result.get_ssh_entry_for_remote(remote)
             if ssh_entry is None:
-                click_echo_wrapper.add_status_line(
-                    f"No known ssh host with this hostname",
+                click_echo_wrapper.add_line(
+                    "No known ssh host with this hostname",
                     indentation_level + 1,
-                    prependedSymbol=LineStatus.WARNING,
+                    status=LineStatus.WARNING,
                 )
                 worst_status = LineStatus.WARNING
             else:
@@ -152,10 +148,6 @@ class ShowCmdResultReporter:
                     f'ssh (Host: "{ssh_entry.hostname}" => IdentityFile: "{ssh_entry.identity_file_path}")',
                     indentation_level,
                 )
-                # click_echo_wrapper.add_line(
-                #     f'email = "{ssh_entry.email}"',
-                #     indentation_level,
-                # )
                 worst_status = self.add_line_check_mismatch(
                     worst_status,
                     click_echo_wrapper,
@@ -165,12 +157,11 @@ class ShowCmdResultReporter:
                     "git user.email",
                     git_result.git_user_email,
                 )
-                # indentation_level -= 1
-        click_echo_wrapper.add_status_line(
+        click_echo_wrapper.add_line(
             f"{git_result.git_repo_folder_name} ({git_result.git_repo_path})",
             0,
-            True,
-            worst_status,
+            isHeading=True,
+            status=worst_status,
             insert_at_position=0,
         )
 
@@ -189,16 +180,16 @@ class ShowCmdResultReporter:
             indentation_level,
         )
         if value == value_checking_against:
-            click_echo_wrapper.add_status_line(
+            click_echo_wrapper.add_line(
                 f"Matches {desc_checking_against}",
                 indentation_level + 1,
-                prependedSymbol=LineStatus.GOOD,
+                status=LineStatus.GOOD,
             )
             return worst_status  # no worse than it was entering this call
         if value != value_checking_against:
-            click_echo_wrapper.add_status_line(
+            click_echo_wrapper.add_line(
                 f"Does not match {desc_checking_against}",
                 indentation_level + 1,
-                prependedSymbol=LineStatus.ERROR,
+                status=LineStatus.ERROR,
             )
             return LineStatus.ERROR
