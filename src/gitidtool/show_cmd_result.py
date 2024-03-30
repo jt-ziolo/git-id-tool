@@ -121,14 +121,15 @@ class ShowCmdResultReporter:
             )
         indentation_level -= 1
         if len(git_result.remotes) == 0:
-            click_echo_wrapper.add_line(
-                "No remotes configured for this repo",
-                indentation_level,
-                status=LineStatus.WARNING,
-            )
-            worst_status = (
-                LineStatus.WARNING if worst_status == LineStatus.GOOD else worst_status
-            )
+            if git_result.git_repo_folder_name != "GLOBAL":
+                click_echo_wrapper.add_line(
+                    "No remotes configured for this repo",
+                    indentation_level,
+                    status=LineStatus.WARNING 
+                )
+                worst_status = (
+                    LineStatus.WARNING if worst_status == LineStatus.GOOD else worst_status
+                )
         for remote in git_result.remotes:
             click_echo_wrapper.add_line(
                 f'git: [remote "{remote.remote_name}"].url = "{remote.url}"',
