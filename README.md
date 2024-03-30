@@ -11,12 +11,11 @@ Consider setting up a git alias for easier cli access, like this:
 
 ## Commands
 
-### show
+### show {options}
 
 - Checks that your git repo, gpg, and ssh config are consistent.
-- Running with 
 
-### guard {git-command-and-args}
+### guard {git-command}
 
 - Warns you and prompts you for confirmation prior to execution of the provided git command and args if there are inconsistencies in your id (between your current git repo, gpg, and ssh config)
 - Format: `git-id-tool guard <args>`

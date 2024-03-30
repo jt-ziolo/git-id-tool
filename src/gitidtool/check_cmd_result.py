@@ -6,7 +6,7 @@ from gitidtool.gpg_data import GpgDataEntry
 from gitidtool.ssh_data import SshDataEntry
 
 
-class ShowCmdResultData:
+class CheckCmdResultData:
     def __init__(
         self,
         repo_config_entry: GitDataEntry,
@@ -53,14 +53,18 @@ class ShowCmdResultData:
     @cached_property
     def gpg_uid_email(self):
         return self.gpg_config_entry.email
+    
+    @cached_property
+    def is_consistent(self):
+        return False
 
     def get_ssh_entry_for_remote(self, remote: GitRemoteDataEntry):
         return self.ssh_map[remote]
 
 
-class ShowCmdResultReporter:
+class CheckCmdResultReporter:
     def report_on_result(
-        self, git_result: ShowCmdResultData, click_echo_wrapper: ClickEchoWrapper
+        self, git_result: CheckCmdResultData, click_echo_wrapper: ClickEchoWrapper
     ):
         worst_status = LineStatus.GOOD
 
